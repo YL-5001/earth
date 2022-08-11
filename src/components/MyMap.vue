@@ -108,26 +108,26 @@
       const goClear = () => {
         //删除所有实体
         // viewer.entities.removeAll();
+        //删除除模型以外的实体
         removeEntityByName('标点')
         removeEntityByName('直线')
         removeEntityByName('多边形')
         removeEntityByName('多边形面积区域')
         removeEntityByName('空间直线距离')
         removeEntityByName('多边形面积')
-        console.log('点击了清除')
       }
       // 根据name删除实体
       const removeEntityByName = (value) => {
-    // 清除之前的实体
-    const entitys = viewer.entities._entities._array;
-    let length = entitys.length
-    // 倒叙遍历防止实体减少之后entitys[f]不存在
-    for (let f = length - 1; f >= 0; f--) {
-        if (entitys[f]._name && entitys[f]._name === value) {
-            viewer.entities.remove(entitys[f]);
+        // 清除之前的实体
+        const entitys = viewer.entities._entities._array;
+        let length = entitys.length
+        // 倒叙遍历防止实体减少之后entitys[f]不存在
+        for (let f = length - 1; f >= 0; f--) {
+          if (entitys[f]._name && entitys[f]._name === value) {
+              viewer.entities.remove(entitys[f]);
+          }
         }
-    }
-}
+      }
       let viewer;
       //镜头切换
       const toLocation = () => {
@@ -912,6 +912,8 @@
       //机动计划
       const moveModel = () => {
         alert('请在地图上规划路线，左键标点，右键结束。')
+        //删除原来的模型
+          deleteModel()
         //需要的变量
         //数组
         let data = [];
@@ -925,42 +927,189 @@
         Cesium.Math.setRandomNumberSeed(3);
 
         // //设置模拟开始时间
-        const start = Cesium.JulianDate.fromDate(new Date(2015, 2, 25, 16));
+        const start = Cesium.JulianDate.fromDate(new Date(2022, 5, 10, 16));
 
         var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-        //鼠标左键事件
-        handler.setInputAction(function (movement) {
-          var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
-          //将笛卡尔坐标转化为经纬度坐标
-          var cartographic = Cesium.Cartographic.fromCartesian(position);
-          var longitude = Cesium.Math.toDegrees(cartographic.longitude);
-          var latitude = Cesium.Math.toDegrees(cartographic.latitude);
-          var height = cartographic.height;
-          console.log(longitude, latitude, height)
-          data[i] = cartographic
-          data[i].longitude = longitude
-          data[i].latitude = latitude
-          data[i].height = height
-          data[i].time = i * 90
-          console.log(data[i]);
-          console.log(data);
-          i++
-          //标点
-          viewer.entities.add({
-            name: '标点',
-            // fromDegrees（经度，纬度，高度，椭球，结果）从以度为单位的经度和纬度值返回Cartesian3位置
-            position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
-            point: {
-              pixelSize: 8,
-              color: Cesium.Color.TRANSPARENT,
-              outlineColor: Cesium.Color.YELLOW,
-              outlineWidth: 3,
-            },
-          });
-        }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        
+        //鼠标左键事件（只标点，不带线）
+        //#region
+        // handler.setInputAction(function (movement) {
+        //   var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
+        //   //将笛卡尔坐标转化为经纬度坐标
+        //   var cartographic = Cesium.Cartographic.fromCartesian(position);
+        //   var longitude = Cesium.Math.toDegrees(cartographic.longitude);
+        //   var latitude = Cesium.Math.toDegrees(cartographic.latitude);
+        //   var height = cartographic.height;
+        //   console.log(longitude, latitude, height)
+        //   data[i] = cartographic
+        //   data[i].longitude = longitude
+        //   data[i].latitude = latitude
+        //   data[i].height = height
+        //   data[i].time = i * 90
+        //   console.log(data[i])
+        //   console.log(data)
+        //   i++
+        //   //标点
+        //   viewer.entities.add({
+        //     name: '机动计划标点',
+        //     // fromDegrees（经度，纬度，高度，椭球，结果）从以度为单位的经度和纬度值返回Cartesian3位置
+        //     position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
+        //     point: {
+        //       pixelSize: 8,
+        //       color: Cesium.Color.TRANSPARENT,
+        //       outlineColor: Cesium.Color.YELLOW,
+        //       outlineWidth: 3,
+        //     }
+        //   });
+        // }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+        //#endregion
+        
+        //标点带线
+        let measureFeature_line = []
+        let measureFeature_polygon = []
+        measureLineSpace()
+        clearMeasureFeature()
+
+        function measureLineSpace() {
+          var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)
+          // 取消双击事件-追踪该位置
+          viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(
+            Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK
+          )
+
+          handler = new Cesium.ScreenSpaceEventHandler(
+            viewer.scene._imageryLayerCollection
+          )
+          var positions = []
+          var poly = null
+          var distance = 0
+          var cartesian = null
+          var floatingPoint
+
+          //鼠标移动
+          handler.setInputAction(function (movement) {
+            const ray = viewer.camera.getPickRay(movement.endPosition)
+            cartesian = viewer.scene.globe.pick(ray, viewer.scene)
+            if (positions.length >= 2) {
+              if (!Cesium.defined(poly)) {
+                poly = new PolyLinePrimitive(positions)
+              } else {
+                positions.pop()
+                positions.push(cartesian)
+              }
+            }
+          }, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+
+          //鼠标左键
+          handler.setInputAction(function (movement) {
+            var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
+            //将笛卡尔坐标转化为经纬度坐标
+            var cartographic = Cesium.Cartographic.fromCartesian(position);
+            var longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            var latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            var height = cartographic.height;
+            console.log(longitude, latitude, height)
+            data[i] = cartographic
+            data[i].longitude = longitude
+            data[i].latitude = latitude
+            data[i].height = height
+            data[i].time = i * 90
+            console.log(data[i])
+            console.log(data)
+            i++
+            const ray = viewer.camera.getPickRay(movement.position)
+            cartesian = viewer.scene.globe.pick(ray, viewer.scene)
+            if (positions.length == 0) {
+              positions.push(cartesian.clone())
+            }
+            positions.push(cartesian)
+
+            //标点
+            floatingPoint = viewer.entities.add({
+              name: '机动计划标点',
+              position: Cesium.Cartesian3.fromDegrees(longitude, latitude, height),
+              point: {
+                pixelSize: 5,
+                color: Cesium.Color.WHITE,
+                // outlineColor: new Cesium.Color(1, 0, 0, 1),
+                outlineColor: Cesium.Color.DEEPSKYBLUE,
+                outlineWidth: 3
+              }
+            })
+            measureFeature_line.push(floatingPoint)
+          }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
+
+          //鼠标右键
+          handler.setInputAction(function (movement) {
+            handler.destroy() // 关闭事件句柄
+            positions.pop() // 最后一个点无效
+            deleteModel()
+            // viewer.entities.remove(floatingPoint);
+          }, Cesium.ScreenSpaceEventType.RIGHT_CLICK)
+
+          //鼠标移动调用的函数，生成连线
+          var PolyLinePrimitive = (function () {
+            function _(positions) {
+              this.options = {
+                name: '机动计划直线',
+                polyline: {
+                  show: true,
+                  positions: [],
+                  material: new Cesium.Color(0, 124 / 255, 247 / 255, 1),
+                  // material: Cesium.Color.CHARTREUSE,
+                  width: 3,
+                  clampToGround: true
+                }
+              }
+              this.positions = positions
+              this._init()
+            }
+
+            _.prototype._init = function () {
+              var _self = this
+              var _update = function () {
+                return _self.positions
+              }
+              // 实时更新polyline.positions
+              this.options.polyline.positions = new Cesium.CallbackProperty(
+                _update,
+                false
+              )
+              const line = viewer.entities.add(this.options)
+              measureFeature_line.push(line)
+            }
+
+            return _
+          })()
+          console.log(measureFeature_line, 'measureFeature_line')
+
+        }
+
+        //清除
+        function clearMeasureFeature() {
+          viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK)
+          viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
+          viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+          if (measureFeature_line.length) {
+            measureFeature_line.forEach(item => {
+              viewer.entities.remove(item)
+            })
+            measureFeature_line = []
+          }
+          if (measureFeature_polygon.length) {
+            measureFeature_polygon.forEach(item => {
+              viewer.entities.remove(item)
+            })
+            measureFeature_polygon = []
+          }
+        }
 
         //右键结束加点，生成路线
         handler.setInputAction(function (movement) {
+          removeEntityByName('机动计划直线')
+          removeEntityByName('机动计划标点')
+          //删除原来的模型
+          deleteModel()
           // 根据标点个数计算结束时间
           end = (i - 1) * 90
           //设置模拟时间的界限
@@ -983,10 +1132,10 @@
           console.log('结束加点')
           // 关闭事件句柄
           handler.destroy()
-          //删除原来的模型
-          deleteModel()
+          
           //实际创建实体
           const entity = viewer.entities.add({
+            name:'机动计划',
             //将实体可用性设置为与模拟时间相同的时间间隔。
             availability: new Cesium.TimeIntervalCollection([
               new Cesium.TimeInterval({
@@ -1010,11 +1159,13 @@
             //将路径显示为以 1 秒为增量采样的黄色线条。
             path: {
               resolution: 1,
-              material: new Cesium.PolylineGlowMaterialProperty({
-                glowPower: 0.1,
-                color: Cesium.Color.YELLOW,
-              }),
-              width: 10,
+              //官网黄色的线
+              // material: new Cesium.PolylineGlowMaterialProperty({
+              //   glowPower: 0.1,
+              //   color: Cesium.Color.YELLOW,
+              // }),
+              material: new Cesium.Color(0, 124 / 255, 247 / 255, 1),
+              width: 3,
             },
           });
           return
@@ -1033,10 +1184,15 @@
             viewer.entities.add({
               position: position,
               point: {
-                pixelSize: 8,
-                color: Cesium.Color.TRANSPARENT,
-                outlineColor: Cesium.Color.YELLOW,
-                outlineWidth: 3,
+                //黄色标点
+                // pixelSize: 8,
+                // color: Cesium.Color.TRANSPARENT,
+                // outlineColor: Cesium.Color.YELLOW,
+                // outlineWidth: 3,
+                pixelSize: 5,
+                color: Cesium.Color.WHITE,
+                outlineColor: Cesium.Color.DEEPSKYBLUE,
+                outlineWidth: 3
               },
             });
           }
@@ -1050,8 +1206,12 @@
       //删除模型
       const deleteModel = () => {
         console.log(entityModel.id)
+        //删除机动计划标点
+        // removeEntityByName('机动计划标点')
+        // removeEntityByName('机动计划')
         //删除
         viewer.entities.remove(entityModel)
+        
         //右键菜单不再显示
         showRightClickMenu.value = false
       }
