@@ -107,8 +107,27 @@
       //清除功能
       const goClear = () => {
         //删除所有实体
-        viewer.entities.removeAll();
+        // viewer.entities.removeAll();
+        removeEntityByName('标点')
+        removeEntityByName('直线')
+        removeEntityByName('多边形')
+        removeEntityByName('多边形面积区域')
+        removeEntityByName('空间直线距离')
+        removeEntityByName('多边形面积')
+        console.log('点击了清除')
       }
+      // 根据name删除实体
+      const removeEntityByName = (value) => {
+    // 清除之前的实体
+    const entitys = viewer.entities._entities._array;
+    let length = entitys.length
+    // 倒叙遍历防止实体减少之后entitys[f]不存在
+    for (let f = length - 1; f >= 0; f--) {
+        if (entitys[f]._name && entitys[f]._name === value) {
+            viewer.entities.remove(entitys[f]);
+        }
+    }
+}
       let viewer;
       //镜头切换
       const toLocation = () => {
@@ -429,7 +448,7 @@
             var polyCenter = Cesium.BoundingSphere.fromPoints(positions).center
             var textArea = getArea(tempPoints) + 'km²'
             const _label = viewer.entities.add({
-              name: '多边形面积',
+              name: '多边形面积区域',
               position: polyCenter,
               // position: positions[positions.length - 1],
               label: {
@@ -1068,7 +1087,8 @@
         modelLatitude,
         modelHeight,
         measureDistance,
-        measureArea
+        measureArea,
+        removeEntityByName
       }
     }
   }
