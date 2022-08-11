@@ -1,0 +1,93 @@
+{
+  "id": "3521561",
+  "name": "战术",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "28880102",
+      "name": "目标、标记",
+      "font_class": "a-mubiaobiaoji",
+      "unicode": "e773",
+      "unicode_decimal": 59251
+    },
+    {
+      "icon_id": "26082640",
+      "name": "清除",
+      "font_class": "qingchu1",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "7062578",
+      "name": "基础功能",
+      "font_class": "jichugongneng",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "9834416",
+      "name": "测距_line",
+      "font_class": "ranging_line",
+      "unicode": "e710",
+      "unicode_decimal": 59152
+    },
+    {
+      "icon_id": "11399584",
+      "name": "简单模型",
+      "font_class": "jiandanmoxing",
+      "unicode": "e639",
+      "unicode_decimal": 58937
+    },
+    {
+      "icon_id": "5013",
+      "name": "列表",
+      "font_class": "liebiao",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "5896808",
+      "name": "地图-地标",
+      "font_class": "ditu-dibiao",
+      "unicode": "ec3f",
+      "unicode_decimal": 60479
+    },
+    {
+      "icon_id": "30335674",
+      "name": "功能栏icon_作废",
+      "font_class": "gongnenglanicon_zuofei",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
+      "icon_id": "30335676",
+      "name": "功能栏icon_删除",
+      "font_class": "gongnenglanicon_shanchu",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "30335677",
+      "name": "功能栏icon_刷新",
+      "font_class": "gongnenglanicon_shuaxin",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "30334239",
+      "name": "功能栏icon_编辑",
+      "font_class": "gongnenglanicon_bianji",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "30335675",
+      "name": "功能栏icon_新增",
+      "font_class": "gongnenglanicon_xinzeng",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    }
+  ]
+}
