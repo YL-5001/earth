@@ -1,16 +1,19 @@
 <template>
+  <!-- 最外层盒子 -->
   <div class="bigBox">
     <!-- 头部 -->
     <header>
       <h1>场景演示</h1>
     </header>
+    <!-- 内容部分 -->
     <div class="report">
+      <!-- 左上角菜单图标 -->
       <div class="btn" @click="toShowAside">
         <i class="iconfont icon-liebiao"></i>
       </div>
       <!-- 侧边栏 -->
       <aside v-if="$store.state.showAside">
-          <MyMenu ref="MyMenuComponent" :getMap='getMap' />
+        <MyMenu ref="MyMenuComponent" :getMap='getMap' />
       </aside>
       <!-- 内容 -->
       <section>
@@ -26,6 +29,7 @@
   import MyMenu from '../components/MyMenu.vue'
   import MyMessageBox from '../components/MyMessageBox.vue'
   import MyMap from '../components/MyMap.vue'
+  //引入库
   import {
     ref,
     reactive,
@@ -48,6 +52,19 @@
         //页面加载的时候就获取一下json数据
         getData()
       })
+
+      //变量
+      //从Node获取的数据
+      let data = reactive({
+        show: false,
+        nowData: {}
+      })
+      
+      //对应MyMap组件要调用的方法
+      let MyMapMethod = ref()
+
+      //方法
+      //从Node获取数据
       const getData = () => {
         axios.get('http://127.0.0.1/api/get')
           .then((res) => {
@@ -56,20 +73,17 @@
             console.log(store.state.myData);
           })
       }
-      let data = reactive({
-        show: false,
-        nowData: {}
-      })
-      // let show = store.state.showMsg
+      
       //调用MyMap子组件的方法，给MyMenu使用
-      let MyMapMethod = ref()
       const getMap = () => {
         MyMapMethod.value.fly()
       }
 
+      //是否显示左侧菜单
       const toShowAside = () => {
         store.commit('toShowAside')
       }
+
       return {
         data,
         MyMapMethod,
@@ -131,10 +145,10 @@
           width: 300px;
           height: 200px;
         }
-        
+
       }
-      
+
     }
-       
+
   }
 </style>

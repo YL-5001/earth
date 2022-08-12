@@ -1,14 +1,16 @@
 <template>
+  <!-- 左侧菜单 -->
   <el-row class="tac">
     <el-col :span="12">
       <el-menu default-active="2" class="el-menu-vertical-demo" :unique-opened="true" :default-openeds="['1']">
         <!-- :unique-opened="true" 只让一个菜单展开 -->
         <!-- :default-openeds="['1']" 默认展开第一个菜单栏 -->
+        <!-- 主菜单 -->
         <el-sub-menu :index="label.id" :key="label.id" v-for="(label,index) in $store.state.myData">
           <template #title>
-            <!-- <span @click="getIndex()">{{$store.state.myData[index].label}}</span> -->
             <span>{{$store.state.myData[index].label}}</span>
           </template>
+          <!-- 子菜单 -->
           <el-menu-item :index="a.id" :key="a.id" v-for="(a) in $store.state.myData[index].children"
             @click="getIndex(a);getMap();showMsg()">
             <span>{{a.label}}</span>
@@ -21,8 +23,9 @@
     </el-col>
   </el-row>
 
-  <!-- 添加的弹窗 -->
+  <!-- 点击添加/修改的弹窗 -->
   <el-dialog v-model="dialogFormVisible" title="方案" :modal="false" width="40vw">
+    <!-- 输入表单 -->
     <el-form :model="form">
       <el-form-item label="场景名称" :label-width="formLabelWidth">
         <el-input v-model="form.name" autocomplete="off" />
@@ -43,6 +46,7 @@
         </el-select>
       </el-form-item>
     </el-form>
+    <!-- 弹窗底部 -->
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
@@ -83,26 +87,25 @@
       const dialogFormVisible = ref(false)
       const formLabelWidth = '140px'
 
+      // 新增/编辑的表单
       const form = reactive({
         name: '',
         time: moment(new Date).format('MMMM Do YYYY,h:mm:ss a'),
         userName: '',
-        region: '',
-        // delivery: false,
-        // type: []
+        region: ''
       })
+
       //方法
       //获取输入信息f并传给node
       const getForm = (form) => {
-        // navData.data[store.state.reportNum].children[store.state.methodNum].form = f
-        // store.state.myData[store.state.reportNum].children[store.state.methodNum].form = f
-        store.commit('getForm',form)
+        store.commit('getForm', form)
         console.log(store.state.myData)
         console.log(form)
         //传给node
         axios.post('http://127.0.0.1/api/getNewJson', store.state.myData)
       }
 
+      // 获取点击的子菜单信息
       const getIndex = (a) => {
         let location = ref('')
         //如果还没有添加form，不跳转视图
@@ -110,8 +113,6 @@
           location.value = a.form.region
         }
         store.state.nowLocation = location
-        // console.log(a)
-        // console.log(store.state.nowLocation)
         aMsg = a //把a的数据接收为全局变量
         //把报告的序号存到vuex
         store.commit('getReportNum', Math.floor(aMsg.id - 1))
@@ -129,7 +130,6 @@
 
       return {
         navData,
-        // getData,
         getIndex,
         index,
         num,
@@ -166,7 +166,7 @@
     .dialog-footer button:first-child {
       margin-right: 10px;
     }
-  } 
+  }
 
   .el-row {
     position: relative;
@@ -243,5 +243,4 @@
       background-color: rgb(4, 64, 155);
     }
   }
-
 </style>

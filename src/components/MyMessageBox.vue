@@ -1,4 +1,5 @@
 <template>
+  <!-- 右侧详细信息盒子 -->
   <div class="msgBox">
     <div class="contentBox">
       <i class="iconfont icon-gongnenglanicon_shanchu" @click="toCloseBox()"></i>
@@ -12,8 +13,6 @@
       <p>{{$store.state.myData[$store.state.reportNum].children[$store.state.methodNum].form.userName}}</p>
       <h3>创建时间：</h3>
       <p>{{$store.state.myData[$store.state.reportNum].children[$store.state.methodNum].form.time}}</p>
-      <!-- <h3>测试数据：</h3> -->
-      <!-- <p>{{state.myData}}</p> -->
     </div>
   </div>
 </template>
@@ -22,11 +21,11 @@
   import store from '@/store'
   export default {
     setup() {
-
       //关闭信息面板
       const toCloseBox = () => {
         store.commit('toClose')
       }
+      
       return {
         toCloseBox
       }
@@ -42,8 +41,6 @@
     // width: 200px;
     height: 600px;
     background: rgba(29, 29, 31, 0.72);
-    // backdrop-filter: saturate(180%) blur(20px);
-    // background-color: rgba(89, 89, 89, 0.15);
     backdrop-filter: blur(6.5px);
     -webkit-backdrop-filter: blur(6.5px);
     border: 1px solid rgba(255, 255, 255, 0.18);

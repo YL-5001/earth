@@ -91,19 +91,24 @@
       let yPosition = ref(0)
       //存储3D模型
       let entityModel
+      //声明
+      let viewer;
       //标点功能
       const goMark = () => {
         addMark()
       }
+
       //测距侧面积功能
       const goMeasure = () => {
         showMeasureChoose.value = !showMeasureChoose.value
       }
+
       //放置模型功能
       const goModel = () => {
         //显示选择框
         showChoose.value = !showChoose.value
       }
+
       //清除功能
       const goClear = () => {
         //删除所有实体
@@ -116,6 +121,7 @@
         removeEntityByName('空间直线距离')
         removeEntityByName('多边形面积')
       }
+
       // 根据name删除实体
       const removeEntityByName = (value) => {
         // 清除之前的实体
@@ -128,7 +134,7 @@
           }
         }
       }
-      let viewer;
+      
       //镜头切换
       const toLocation = () => {
         switch (store.state.nowLocation) {
@@ -148,6 +154,7 @@
             return Cesium.Cartesian3.fromDegrees(0, 0, 6000000)
         }
       }
+
       //初始化地球
       const initMap = () => {
         let vmodels = Cesium.createDefaultImageryProviderViewModels();
@@ -170,6 +177,7 @@
         // 去除版权信息
         viewer._cesiumWidget._creditContainer.style.display = "none";
       }
+
       //点击加点
       const addMark = () => {
         //获取点击的经纬度
@@ -586,6 +594,7 @@
           }
         }
       }
+
       //单测距离
       const measureDistance = () => {
         let measureFeature_line = []
@@ -795,6 +804,7 @@
           url: "/models/Cesium_Air.glb"
         },
       ]
+
       //全局的模型坐标
       let modelLongitude
       let modelLatitude
@@ -869,6 +879,7 @@
           }
         }, Cesium.ScreenSpaceEventType.RIGHT_CLICK);
       }
+
       //获取鼠标位置
       const getMouseXY = (e) => {
         xPosition.value = e.pageX //获取鼠标的X坐标（鼠标与屏幕左侧的距离，单位为px）
@@ -876,6 +887,7 @@
         console.log(xPosition.value + 'px');
         console.log(yPosition.value + 'px');
       }
+
       //高亮模型
       const heighLightModel = () => {
         console.log(entityModel);
@@ -883,6 +895,7 @@
         //右键菜单不再显示
         showRightClickMenu.value = false
       }
+
       //调整模型
       const adjustModel = () => {
         showAdjustModel.value = true
@@ -899,6 +912,7 @@
         //右键菜单不再显示
         showRightClickMenu.value = false
       }
+
       //取消模型更改
       const cancelAdjust = () => {
         headingValue.value = 0
@@ -916,7 +930,7 @@
           deleteModel()
         //需要的变量
         //数组
-        let data = [];
+        let data = []
         let i = 0
         //机动计划结束时间
         let end
@@ -924,12 +938,12 @@
         let position
 
         //设置随机数种子以获得一致的结果.
-        Cesium.Math.setRandomNumberSeed(3);
+        Cesium.Math.setRandomNumberSeed(3)
 
         // //设置模拟开始时间
-        const start = Cesium.JulianDate.fromDate(new Date(2022, 5, 10, 16));
+        const start = Cesium.JulianDate.fromDate(new Date(2022, 5, 10, 16))
 
-        var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+        var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas)
         
         //鼠标左键事件（只标点，不带线）
         //#region
@@ -982,7 +996,6 @@
           )
           var positions = []
           var poly = null
-          var distance = 0
           var cartesian = null
           var floatingPoint
 
@@ -1002,11 +1015,11 @@
 
           //鼠标左键
           handler.setInputAction(function (movement) {
-            var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
+            var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid)
             //将笛卡尔坐标转化为经纬度坐标
-            var cartographic = Cesium.Cartographic.fromCartesian(position);
-            var longitude = Cesium.Math.toDegrees(cartographic.longitude);
-            var latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            var cartographic = Cesium.Cartographic.fromCartesian(position)
+            var longitude = Cesium.Math.toDegrees(cartographic.longitude)
+            var latitude = Cesium.Math.toDegrees(cartographic.latitude)
             var height = cartographic.height;
             console.log(longitude, latitude, height)
             data[i] = cartographic
@@ -1109,7 +1122,7 @@
           removeEntityByName('机动计划直线')
           removeEntityByName('机动计划标点')
           //删除原来的模型
-          deleteModel()
+          // deleteModel()
           // 根据标点个数计算结束时间
           end = (i - 1) * 90
           //设置模拟时间的界限
@@ -1117,16 +1130,16 @@
             start,
             end,
             new Cesium.JulianDate()
-          );
+          )
 
           //确保查看者处于所需的时间。
-          viewer.clock.startTime = start.clone();
-          viewer.clock.stopTime = stop.clone();
-          viewer.clock.currentTime = start.clone();
-          viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP; //Loop at the end
-          viewer.clock.multiplier = 10; //乘数
+          viewer.clock.startTime = start.clone()
+          viewer.clock.stopTime = stop.clone()
+          viewer.clock.currentTime = start.clone()
+          viewer.clock.clockRange = Cesium.ClockRange.LOOP_STOP //Loop at the end
+          viewer.clock.multiplier = 10 //乘数
           //将时间轴设置为模拟边界
-          viewer.timeline.zoomTo(start, stop);
+          viewer.timeline.zoomTo(start, stop)
           // 获取经过处理的位置信息
           position = computeCirclularFlight(data)
           console.log('结束加点')
@@ -1173,13 +1186,13 @@
 
         //右键事件的position调用的方法，生成具有不同高度的随机圆形图案
         function computeCirclularFlight(source) {
-          const property = new Cesium.SampledPositionProperty();
+          const property = new Cesium.SampledPositionProperty()
           // 取样位置 相当于一个集合
           for (let i = 0; i < source.length; i++) {
-            let time = Cesium.JulianDate.addSeconds(start, source[i].time, new Cesium.JulianDate);
-            let position = Cesium.Cartesian3.fromDegrees(source[i].longitude, source[i].latitude, source[i].height);
+            let time = Cesium.JulianDate.addSeconds(start, source[i].time, new Cesium.JulianDate)
+            let position = Cesium.Cartesian3.fromDegrees(source[i].longitude, source[i].latitude, source[i].height)
             // 添加位置，和时间对应
-            property.addSample(time, position);
+            property.addSample(time, position)
             //还要为我们生成的每个样本创建一个点。
             viewer.entities.add({
               position: position,
@@ -1194,7 +1207,7 @@
                 outlineColor: Cesium.Color.DEEPSKYBLUE,
                 outlineWidth: 3
               },
-            });
+            })
           }
           return property;
         }
@@ -1206,11 +1219,10 @@
       //删除模型
       const deleteModel = () => {
         console.log(entityModel.id)
-        //删除机动计划标点
-        // removeEntityByName('机动计划标点')
-        // removeEntityByName('机动计划')
         //删除
+        // viewer.entities.remove(floatingPoint)
         viewer.entities.remove(entityModel)
+        // viewer.entities.remove(floatingPoint)
         
         //右键菜单不再显示
         showRightClickMenu.value = false
